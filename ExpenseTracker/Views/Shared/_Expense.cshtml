@@ -1,0 +1,37 @@
+﻿@model ExpenseTracker.ViewModels.ExpenseViewModel
+<table class="table" id="expenseDataTable"> 
+    <thead>
+        <tr>
+            <th>
+                Amount
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Expense Date
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Expenses) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpenseDate)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ExpenseId">Edit</a> |
+                
+                <a asp-action="Delete" asp-route-id="@item.ExpenseId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

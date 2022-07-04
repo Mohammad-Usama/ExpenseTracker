@@ -1,0 +1,168 @@
+﻿@model ExpenseTracker.ViewModels.ExpenseViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <p>
+    <a asp-action="Create">Create New</a>
+</p>
+    </div>
+    <div class="col-md-8 d-flex justify-content-end">
+             <div class="form-group d-flex">
+                <input type="date" id="startDate" class="form-control" />
+            </div>
+             <div class="form-group mx-3 d-flex">
+                <input type="date" id="endDate" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="button"  id="filterBtn" value="Filter" class="btn btn-primary" />
+            </div>
+            <div class="form-group mx-3" >
+                <input type="button" id="clearBtn" value="Clear" class="btn btn-primary" />
+            </div>
+    </div>
+</div>
+
+
+<table class="table" id="expenseDataTable"> 
+    <thead>
+        <tr>
+            <th>
+                Amount
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Expense Date
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Expenses) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpenseDate)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ExpenseId">Edit</a> |
+                
+                <a asp-action="Delete" asp-route-id="@item.ExpenseId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        function getFormattedDate(date = new Date()) {
+            var today = new Date(date);
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; //January is 0!
+            var yyyy = today.getFullYear();
+             if(dd<10){
+                    dd='0'+dd
+                } 
+                if(mm<10){
+                    mm='0'+mm
+                } 
+
+            today = yyyy+'-'+mm+'-'+dd;
+
+            return today
+        }
+
+        function getPreviousDay() {
+            const previous = new Date();
+            previous.setDate(previous.getDate() - 1);
+            return getFormattedDate(previous);
+        }
+        
+        $("#endDate").change(function() {
+            var endDate = $(this).val();
+            var startDate = $("#startDate").val();
+
+            startDate = new Date(startDate);
+            endDate = new Date(endDate);
+
+            if (endDate <= startDate) {
+                alert("EndD Date should not be less than start Date");
+
+                const previous = new Date(startDate);
+                previous.setDate(previous.getDate() + 1);
+
+                $("#endDate").val(getFormattedDate(previous));
+            }
+        });
+
+
+        $("#startDate").change(function() {
+            var startDate = $(this).val();
+            var endDate = $("#endDate").val();
+
+            startDate = new Date(startDate);
+            endDate = new Date(endDate);
+
+            if (startDate >= endDate) {
+                alert("Start should be less than end Date");
+
+                const previous = new Date(endDate);
+                previous.setDate(previous.getDate() - 1);
+
+                $("#startDate").val(getFormattedDate(previous));
+            }
+        });
+
+
+        $("#clearBtn").on('click', function() {
+            $("#startDate").val(getPreviousDay());
+            $("#endDate").val(getFormattedDate());
+            getFilterData();
+        });
+
+
+        $("#filterBtn").click(function() {
+            getFilterData();
+        });
+
+        function getFilterData() {
+            var startDate = $("#startDate").val();
+            var endDate = $("#endDate").val();
+            
+            $.ajax({
+                url: '@Url.Action("GetFilters","Expenses")',
+                type: 'POST',
+                data: { startDate: startDate, endDate: endDate },
+                success: function(data) {
+                    $("#expenseDataTable").html("");
+                    $("#expenseDataTable").html(data);
+                }
+            });
+        };
+
+        $(function() {
+
+            document.getElementById("startDate").setAttribute("max", getPreviousDay());
+            document.getElementById("startDate").setAttribute("value", getPreviousDay());
+            document.getElementById("endDate").setAttribute("max", getFormattedDate());
+            document.getElementById("endDate").setAttribute("value", getFormattedDate());
+        });
+    </script>
+}

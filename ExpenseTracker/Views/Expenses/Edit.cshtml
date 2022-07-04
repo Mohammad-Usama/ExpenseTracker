@@ -1,0 +1,65 @@
+﻿@model ExpenseTracker.ViewModels.ExpenseViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Expense</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Expense.Id" />
+            <div class="form-group">
+                <label asp-for="Expense.CategoryId" class="control-label"></label>
+                <select asp-for="Expense.CategoryId" class="form-control" 
+                     asp-items="@(new SelectList(Model.Categories, nameof(Category.Id), nameof(Category.Name)))">
+                </select>
+               <span asp-validation-for="Expense.CategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group my-3">
+                <label asp-for="Expense.Amount" class="control-label"></label>
+                <input asp-for="Expense.Amount" class="form-control" />
+                <span asp-validation-for="Expense.Amount" class="text-danger"></span>
+            </div>
+             
+            <div class="form-group">
+                <label asp-for="Expense.ExpenseDate" class="control-label"></label>
+                <input asp-for="Expense.ExpenseDate" type="date" class="form-control" />
+                <span asp-validation-for="Expense.ExpenseDate" class="text-danger"></span>
+            </div>
+            <div class="form-group my-3">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        $(function() {
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; //January is 0!
+            var yyyy = today.getFullYear();
+             if(dd<10){
+                    dd='0'+dd
+                } 
+                if(mm<10){
+                    mm='0'+mm
+                } 
+
+            today = yyyy+'-'+mm+'-'+dd;
+            document.getElementById("Expense_ExpenseDate").setAttribute("max", today);
+        });
+    </script>
+}
